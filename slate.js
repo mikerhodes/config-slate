@@ -3,6 +3,7 @@
 
 // Screen sizes we use
 var DELL_27 = 2560;
+var DELL_24 = 1920;
 var LAPTOP = 1366;
 
 
@@ -26,11 +27,13 @@ var normals = new Object();
 normals.names = [
     'Nightly',
     'Aurora',
+    'Firefox',
     'FirefoxDeveloperEdition',
     'Google Chrome',
     'Evernote'
 ];
 normals.position_27 = [0, 22, 1366, 1019];
+normals.position_24 = [0, 22, 1366, 1019];
 normals.position_11 = "full_screen";
 sizes.push(normals);
 
@@ -40,6 +43,7 @@ top_rights.names = [
     '1Password',
 ];
 top_rights.position_27 = [1367, 22, 1193, 685];
+top_rights.position_24 = [727, 22, 1193, 685];
 top_rights.position_11 = "full_screen"
 sizes.push(top_rights);
 
@@ -50,30 +54,35 @@ editors.names = [
     'Xcode'
 ];
 editors.position_27 = [258, 105, 1904, 1158];
+editors.position_24 = "full_screen";
 editors.position_11 = "full_screen";
 sizes.push(editors);
 
 var notes = new Object();
 notes.names = ['IBM Notes'];
 notes.position_27 = [258, 83, 1071, 1158];
+notes.position_24 = [258, 83, 1071, 1158];
 notes.position_11 = "full_screen";
 sizes.push(notes);
 
 var scm = new Object();
 scm.names = ['GitHub', 'SourceTree'];
 scm.position_27 = [1367, 22, 1193, 900];
+scm.position_24 = "full_screen";
 scm.position_11 = "full_screen";
 sizes.push(scm);
 
 var terminal = new Object();
 terminal.names = ["Terminal"];
 terminal.position_27 = [0, 22, 1366, 685];
+terminal.position_24 = [0, 22, 1366, 685];
 terminal.position_11 = "full_screen";
 sizes.push(terminal);
 
 var adium = new Object();
 adium.names = ["Adium"];
 adium.position_27 = [2105, 755, 455, 685];
+adium.position_24 = [1465, 515, 455, 685];
 adium.position_11 = [1366-455, 22, 455, 685];
 sizes.push(adium);
 
@@ -116,7 +125,7 @@ slate.bind("4:space,ctrl", function(){
 
     if (w === DELL_27) {
         position_window(win, 258, 105, 1904, 1158);
-    } else if (w === LAPTOP) {
+    } else if (w === LAPTOP || w === DELL_24) {
         full_screen(win);
     }
 });
@@ -162,6 +171,8 @@ function position() {
 
                     if (screen_width === DELL_27) {
                         p = apps.position_27;
+                    } else if (screen_width === DELL_24) {
+                        p = apps.position_24;
                     } else if (screen_width === LAPTOP) {
                         p = apps.position_11;
                     }
@@ -189,6 +200,8 @@ function position() {
 
                     if (screen_width === DELL_27) {
                         position_window(win, 1575, 0, 339, 685);
+                    } else if (screen_width === DELL_24) {
+                        position_window(win, 0, 0, 455, 685);
                     } else if (screen_width === LAPTOP) {
                         position_window(win, 0, 0, 455, 685);
                     }
@@ -198,6 +211,8 @@ function position() {
 
                     if (screen_width === DELL_27) {
                         position_window(win, 1915, 0, 648, 685);
+                    } else if (screen_width === DELL_24) {
+                        position_window(win, 456, 0, 648, 685);
                     } else if (screen_width === LAPTOP) {
                         position_window(win, 456, 0, 648, 685);
                     }
