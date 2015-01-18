@@ -21,70 +21,86 @@ var LAPTOP = 1366;
 
 // Array for all different sizes. This is looped over when positioning
 // windows.
-var sizes = [];
+var sizes = {};
 
-var normals = new Object();
-normals.names = [
+_.each([
     'Nightly',
     'Aurora',
     'Firefox',
     'FirefoxDeveloperEdition',
     'Google Chrome',
     'Evernote'
-];
-normals.position_27 = [0, 22, 1366, 1019];
-normals.position_24 = [0, 22, 1366, 1019];
-normals.position_11 = "full_screen";
-sizes.push(normals);
+], function(name) {
+    sizes[name] = {
+        position_27: [0, 22, 1366, 1019],  // top left
+        position_24: [0, 22, 1366, 1019],
+        position_11: "full_screen"
+    };
+});
 
-var top_rights = new Object();
-top_rights.names = [
+_.each([
     'LimeChat',
-    '1Password',
-];
-top_rights.position_27 = [1367, 22, 1193, 685];
-top_rights.position_24 = [727, 22, 1193, 685];
-top_rights.position_11 = "full_screen"
-sizes.push(top_rights);
+    '1Password'
+], function(name) {
+    sizes[name] = {
+        position_27: [1367, 22, 1193, 685],  // top right
+        position_24: [727, 22, 1193, 685],
+        position_11: "full_screen"
+    };
+});
 
-var editors = new Object();
-editors.names = [
+_.each([
     'Sublime Text',
     'IntelliJ IDEA',
     'Xcode'
-];
-editors.position_27 = [258, 105, 1904, 1158];
-editors.position_24 = "full_screen";
-editors.position_11 = "full_screen";
-sizes.push(editors);
+], function(name) {
+    sizes[name] = {
+        position_27: [258, 105, 1904, 1158],  // a kind of nice centering
+        position_24: "full_screen",
+        position_11: "full_screen"
+    };
+});
 
-var notes = new Object();
-notes.names = ['IBM Notes'];
-notes.position_27 = [258, 83, 1071, 1158];
-notes.position_24 = [258, 83, 1071, 1158];
-notes.position_11 = "full_screen";
-sizes.push(notes);
+_.each([
+    'IBM Notes'
+], function(name) {
+    sizes[name] = {
+        position_27: [258, 83, 1071, 1158],  // some odd least-ugly placement
+        position_24: [258, 83, 1071, 1158],
+        position_11: "full_screen"
+    };
+});
 
-var scm = new Object();
-scm.names = ['GitHub', 'SourceTree'];
-scm.position_27 = [1367, 22, 1193, 900];
-scm.position_24 = "full_screen";
-scm.position_11 = "full_screen";
-sizes.push(scm);
+_.each([
+    'GitHub',
+    'SourceTree'
+], function(name) {
+    sizes[name] = {
+        position_27: [1367, 22, 1193, 900],
+        position_24: "full_screen",
+        position_11: "full_screen"
+    };
+});
 
-var terminal = new Object();
-terminal.names = ["Terminal"];
-terminal.position_27 = [0, 22, 1366, 685];
-terminal.position_24 = [0, 22, 1366, 685];
-terminal.position_11 = "full_screen";
-sizes.push(terminal);
+_.each([
+    'Terminal'
+], function(name) {
+    sizes[name] = {
+        position_27: [0, 22, 1366, 685],
+        position_24: [0, 22, 1366, 685],
+        position_11: "full_screen"
+    };
+});
 
-var adium = new Object();
-adium.names = ["Adium"];
-adium.position_27 = [2105, 755, 455, 685];
-adium.position_24 = [1465, 515, 455, 685];
-adium.position_11 = [1366-455, 22, 455, 685];
-sizes.push(adium);
+_.each([
+    'Adium'
+], function(name) {
+    sizes[name] = {
+        position_27: [2105, 755, 455, 685],
+        position_24: [1465, 515, 455, 685],
+        position_11: [1366-455, 22, 455, 685]
+    };
+});
 
 
 //
@@ -152,7 +168,6 @@ function position() {
     var h = current_screen_size.height;
     slate.log("Current screen info: w: " + w + "; h: " + h);
 
-    var current_screen_size = slate.screen().vrect();
     var screen_width = current_screen_size.width;
 
     var moved_windows = 0;
@@ -161,37 +176,37 @@ function position() {
 
         var app_name = app.name();
 
-        // The simple defaults where all windows of the app end up in
-        // the same place.
-        _.each(sizes, function(apps) {
-            if (_.contains(apps.names, app_name)) {
-                app.eachWindow(function(win) {
+        if (_.has(sizes, app_name)) {
 
-                    var p;
+            var metrics_for_app = sizes[app_name];
 
-                    if (screen_width === DELL_27) {
-                        p = apps.position_27;
-                    } else if (screen_width === DELL_24) {
-                        p = apps.position_24;
-                    } else if (screen_width === LAPTOP) {
-                        p = apps.position_11;
-                    }
+            app.eachWindow(function(win) {
 
-                    if (p === "full_screen") {
-                        full_screen(win);
-                    } else {
-                        position_window(win, p[0], p[1], p[2], p[3]);
-                    }
+                var p;
 
-                    moved_windows++;
+                if (screen_width === DELL_27) {
+                    p = metrics_for_app.position_27;
+                } else if (screen_width === DELL_24) {
+                    p = metrics_for_app.position_24;
+                } else if (screen_width === LAPTOP) {
+                    p = metrics_for_app.position_11;
+                }
 
-                });
-            }
-        });
+                if (p === "full_screen") {
+                    full_screen(win);
+                } else {
+                    position_window(win, p[0], p[1], p[2], p[3]);
+                }
+
+                moved_windows++;
+
+            });
+
+        }
 
         // For Sametime, put the Buddy List to the left of the chat
         // window.
-        if (_.contains(['Sametime'], app_name)) {
+        if (app_name == "Sametime") {
             // x2105 y755 w455 h685
             app.eachWindow(function(win) {
                 var title = win.title();
@@ -223,10 +238,9 @@ function position() {
         }
 
         // Spotify lives on the laptop screen if we've a two screen set up
-        second_screen = ['Spotify'];
-        if (slate.screenCount() == 2 && _.contains(second_screen, app_name)) {
+        if (slate.screenCount() == 2 && app_name == "Spotify") {
             app.eachWindow(function(win) {
-                full_screen(win, "0");
+                full_screen(win, "1");
                 moved_windows++;
             });
         }
@@ -276,14 +290,13 @@ function full_screen(win, screen_id) {
  */
 function log_screens() {
     slate.eachScreen(function(screenObj) {
-        var size = screenObj.vrect()
+        var size = screenObj.vrect();
         slate.log(
             "screen " + screenObj.id() +
             ": " + size.width +
             ", " + size.height +
             ", " + size.x +
-            ", " + size.y
-        );
+            ", " + size.y);
     });
 }
 
@@ -299,7 +312,6 @@ function log_application(app) {
             " x" + size.x +
             " y" + size.y +
             " w" + size.width +
-            " h" + size.height
-        );
+            " h" + size.height);
     });
 }
