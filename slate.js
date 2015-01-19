@@ -1,9 +1,7 @@
 // This is a Javascript Slate config. Documentation is here:
 // https://github.com/jigish/slate/wiki/JavaScript-Configs
 
-// Screen sizes we use. Strings so they can be used as object subscripts
-// in the various position functions below; Javascript will coerse integers
-// for the screen width into a string when keying into arrays.
+// Horizontal resolutions of the monitors in use.
 var DELL_27 = 2560;
 var DELL_24 = 1920;
 var LAPTOP = 1366;
@@ -34,7 +32,8 @@ function fs() {
 // Each app to resize has an entry in this dictionary, keyed by application
 // name. The entry consists of a resizing function for the windows of the
 // application. The entry has three properties, each containing a resizing
-// function:
+// function. The resizing function is run on an application's windows during
+// position().
 //  - 27: position on 27" monitor
 //  - 24: position on 24" monitor
 //  - 11: position on 11" screen (laptop)
@@ -50,9 +49,9 @@ _.each([
     'Evernote'
 ], function(name) {
     app_resize_functions[name] = {
-        27: pw(0, 22, 1366, 1019),  // top left
-        24: pw(0, 22, 1366, 1019),
-        11: fs()
+        "27": pw(0, 22, 1366, 1019),  // top left
+        "24": pw(0, 22, 1366, 1019),
+        "11": fs()
     };
 });
 
@@ -61,9 +60,9 @@ _.each([
     '1Password'
 ], function(name) {
     app_resize_functions[name] = {
-        27: pw(1367, 22, 1193, 685),  // top right
-        24: pw(727, 22, 1193, 685),
-        11: fs()
+        "27": pw(1367, 22, 1193, 685),  // top right
+        "24": pw(727, 22, 1193, 685),
+        "11": fs()
     };
 });
 
@@ -73,9 +72,9 @@ _.each([
     'Xcode'
 ], function(name) {
     app_resize_functions[name] = {
-        27: pw(258, 105, 1904, 1158),  // a kind of nice centering
-        24: fs(),
-        11: fs()
+        "27": pw(258, 105, 1904, 1158),  // a kind of nice centering
+        "24": fs(),
+        "11": fs()
     };
 });
 
@@ -83,9 +82,9 @@ _.each([
     'IBM Notes'
 ], function(name) {
     app_resize_functions[name] = {
-        27: pw(258, 83, 1071, 1158),  // some odd least-ugly placement
-        24: pw(258, 83, 1071, 1158),
-        11: fs()
+        "27": pw(258, 83, 1071, 1158),  // some odd least-ugly placement
+        "24": pw(258, 83, 1071, 1158),
+        "11": fs()
     };
 });
 
@@ -94,9 +93,9 @@ _.each([
     'SourceTree'
 ], function(name) {
     app_resize_functions[name] = {
-        27: pw(1367, 22, 1193, 900),
-        24: fs(),
-        11: fs()
+        "27": pw(1367, 22, 1193, 900),
+        "24": fs(),
+        "11": fs()
     };
 });
 
@@ -104,21 +103,93 @@ _.each([
     'Terminal'
 ], function(name) {
     app_resize_functions[name] = {
-        27: pw(0, 22, 1366, 685),
-        24: pw(0, 22, 1366, 685),
-        11: fs()
+        "27": pw(0, 22, 1366, 685),
+        "24": pw(0, 22, 1366, 685),
+        "11": fs()
     };
 });
 
-_.each([
-    'Adium'
-], function(name) {
-    app_resize_functions[name] = {
-        27: pw(2105, 755, 455, 685),
-        24: pw(1465, 515, 455, 685),
-        11: pw(1366-455, 22, 455, 685)
-    };
-});
+app_resize_functions["Adium"] = {
+    "27": pw(2105, 755, 455, 685),
+    "24": pw(1465, 515, 455, 685),
+    "11": pw(1366-455, 22, 455, 685)
+};
+
+app_resize_functions["Spotify"] = {
+    "27": fs(),
+    "24": fs(),
+    "11": fs()
+};
+
+app_resize_functions["Sametime"] = {
+    "27": function (win) {
+        var is_buddy_list = win.title().indexOf("IBM Sametime") !== -1;
+        (is_buddy_list ? pw(1575, 0, 339, 685) : pw(1915, 0, 648, 685))(win);
+    },
+    "24": function (win) {
+        var is_buddy_list = win.title().indexOf("IBM Sametime") !== -1;
+        (is_buddy_list ? pw(0, 0, 455, 685) : pw(456, 0, 648, 685))(win);
+    },
+    "11": function (win) {
+        var is_buddy_list = win.title().indexOf("IBM Sametime") !== -1;
+        (is_buddy_list ? pw(0, 0, 455, 685) : pw(456, 0, 648, 685))(win);
+    }
+};
+
+
+/**
+ Enumerate all windows, setting their sizes from the `sizes` array,
+ with a couple of special cases, based on screen layout.
+ */
+function position() {
+
+    slate.log('Entered: postition()');
+
+    var screen_count = slate.screenCount();
+    slate.log("Using " + screen_count + " screen default.");
+
+    var current_screen_size = slate.screen().vrect();
+    var w = current_screen_size.width;
+    var h = current_screen_size.height;
+    slate.log("Current screen info: w: " + w + "; h: " + h);
+
+    var screen_width = current_screen_size.width;
+
+    var moved_windows = 0;
+
+    var monitor_layout;
+    switch (screen_width) {
+        case DELL_27:
+            monitor_layout = "27";
+            break;
+        case DELL_24:
+            monitor_layout = "24";
+            break;
+        case LAPTOP:
+            monitor_layout = "11";
+            break;
+        default:
+            monitor_layout = "11";
+            break;
+    }
+
+    slate.eachApp(function(app) {
+
+        var app_name = app.name();
+
+        if (_.has(app_resize_functions, app_name)) {
+            var resize_function = app_resize_functions[app_name][monitor_layout];
+            app.eachWindow(function(win) {
+                resize_function(win);
+                moved_windows++;
+            });
+        }
+
+    });
+
+    slate.log('Moved ' + moved_windows + ' windows.');
+    slate.log('Exited: postition()');
+}
 
 
 //
@@ -168,92 +239,6 @@ slate.bind("4:space,ctrl", function(){
 slate.bind("0:space,ctrl", function(){
     position();
 });
-
-
-/**
- Enumerate all windows, setting their sizes from the `sizes` array,
- with a couple of special cases, based on screen layout.
- */
-function position() {
-
-    slate.log('Entered: postition()');
-
-    var screen_count = slate.screenCount();
-    slate.log("Using " + screen_count + " screen default.");
-
-    var current_screen_size = slate.screen().vrect();
-    var w = current_screen_size.width;
-    var h = current_screen_size.height;
-    slate.log("Current screen info: w: " + w + "; h: " + h);
-
-    var screen_width = current_screen_size.width;
-
-    var moved_windows = 0;
-
-    slate.eachApp(function(app) {
-
-        var app_name = app.name();
-
-        if (_.has(app_resize_functions, app_name)) {
-
-            var resize_functions = app_resize_functions[app_name];
-
-            app.eachWindow(function(win) {
-
-                if (screen_width === DELL_27) {
-                    resize_functions[27](win);
-                } else if (screen_width === DELL_24) {
-                    resize_functions[24](win);
-                } else if (screen_width === LAPTOP) {
-                    resize_functions[11](win);
-                }
-
-                moved_windows++;
-
-            });
-
-        }
-
-        // For Sametime, put the Buddy List to the left of the chat
-        // window.
-        if (app_name == "Sametime") {
-            // x2105 y755 w455 h685
-            app.eachWindow(function(win) {
-                var is_buddy_list = win.title().indexOf("IBM Sametime") !== -1;
-                if (is_buddy_list) {
-                    if (screen_width === DELL_27) {
-                        position_window(win, 1575, 0, 339, 685);
-                    } else if (screen_width === DELL_24) {
-                        position_window(win, 0, 0, 455, 685);
-                    } else if (screen_width === LAPTOP) {
-                        position_window(win, 0, 0, 455, 685);
-                    }
-                } else {
-                    if (screen_width === DELL_27) {
-                        position_window(win, 1915, 0, 648, 685);
-                    } else if (screen_width === DELL_24) {
-                        position_window(win, 456, 0, 648, 685);
-                    } else if (screen_width === LAPTOP) {
-                        position_window(456, 0, 648, 685);
-                    }
-                }
-                moved_windows++;
-            });
-        }
-
-        // Spotify lives on the laptop screen if we've a two screen set up
-        if (slate.screenCount() == 2 && app_name == "Spotify") {
-            app.eachWindow(function(win) {
-                full_screen(win, "1");
-                moved_windows++;
-            });
-        }
-
-    });
-
-    slate.log('Moved ' + moved_windows + ' windows.');
-    slate.log('Exited: postition()');
-}
 
 
 //
