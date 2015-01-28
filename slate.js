@@ -6,6 +6,10 @@ var DELL_27 = 2560;
 var DELL_24 = 1920;
 var LAPTOP = 1366;
 
+var DELL_27_SCREEN_ID = "2560x1440";
+var LAPTOP_SCREEN_ID = "1366x768";
+var DEFAULT_SCREEN_ID = "0";
+
 //
 //    DEFAULT SETTINGS
 //
@@ -248,15 +252,16 @@ slate.bind("0:space,ctrl", function(){
 
 /**
  Position a window. If screen_id is provided, that screen is used,
- otherwise a default of "0" is used.
+ otherwise a default of DEFAULT_SCREEN_ID is used.
  */
 function position_window(win, x, y, w, h, screen_id) {
-    if(typeof(screen_id) === 'undefined') { screen_id = "0"; }
+    if(typeof(screen_id) === 'undefined') { screen_id = DEFAULT_SCREEN_ID; }
 
     if (win.title() === "") { return; }
 
-    // slate.log("* Moving " + win.app().name() + " -- " + win.title());
-    // slate.log("  -> " + " x" + x + " y" + y + " w" + w + " h" + h);
+    slate.log("* Moving " + win.app().name() + " -- " + win.title());
+    slate.log("  -> " + " x" + x + " y" + y + " w" + w + " h" + h);
+    slate.log("  -> " + " screen " + screen_id);
 
     var success = win.move({ "x" : x, "y" : y, "screen" : screen_id });
     success = win.resize({ "width": w, "height": h });
@@ -269,8 +274,8 @@ function position_window(win, x, y, w, h, screen_id) {
  Make a window full screen.
  */
 function full_screen(win, screen_id) {
-    if(typeof(screen_id) === 'undefined') { screen_id = "0"; }
-    var p = slate.screen().vrect();
+    if(typeof(screen_id) === 'undefined') { screen_id = DEFAULT_SCREEN_ID; }
+    var p = slate.screenForRef(screen_id).vrect();
     position_window(win, p.x, p.y, p.width, p.height, screen_id);
 }
 
