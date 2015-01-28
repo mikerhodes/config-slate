@@ -155,15 +155,15 @@ app_resize_functions["Sametime"] = {
  */
 function position() {
 
-    slate.log('Entered: postition()');
+    // slate.log('Entered: postition()');
 
     var screen_count = slate.screenCount();
-    slate.log("Using " + screen_count + " screen default.");
+    // slate.log("Using " + screen_count + " screen default.");
 
     var current_screen_size = slate.screen().vrect();
     var w = current_screen_size.width;
     var h = current_screen_size.height;
-    slate.log("Current screen info: w: " + w + "; h: " + h);
+    // slate.log("Current screen info: w: " + w + "; h: " + h);
 
     var screen_width = current_screen_size.width;
 
@@ -199,8 +199,8 @@ function position() {
 
     });
 
-    slate.log('Moved ' + moved_windows + ' windows.');
-    slate.log('Exited: postition()');
+    // slate.log('Moved ' + moved_windows + ' windows.');
+    // slate.log('Exited: postition()');
 }
 
 
@@ -267,9 +267,9 @@ function position_window(win, x, y, w, h, screen_id) {
 
     if (win.title() === "") { return; }
 
-    slate.log("* Moving " + win.app().name() + " -- " + win.title());
-    slate.log("  -> " + " x" + x + " y" + y + " w" + w + " h" + h);
-    slate.log("  -> " + " screen " + screen_id);
+    // slate.log("* Moving " + win.app().name() + " -- " + win.title());
+    // slate.log("  -> " + " x" + x + " y" + y + " w" + w + " h" + h);
+    // slate.log("  -> " + " screen " + screen_id);
 
     var success = win.move({ "x" : x, "y" : y, "screen" : screen_id });
     success = win.resize({ "width": w, "height": h });
