@@ -20,15 +20,23 @@ var DEFAULT_SCREEN_ID = "0";
 // to be later called during automatic window positioning.
 
 // Return a function to resize an window to a given position and size.
-function pw(x, y, w, h) {
+function pw(x, y, w, h, outer_screen_id) {
     return function (win, screen_id) {
+        // Allow outer_screen_id to override screen_id
+        if(typeof(outer_screen_id) !== 'undefined') {
+            screen_id = outer_screen_id;
+        }
         position_window(win, x, y, w, h, screen_id);
     };
 }
 
 // Return a function to resize a window to fill the screen.
-function fs() {
+function fs(outer_screen_id) {
     return function(win, screen_id) {
+        // Allow outer_screen_id to override screen_id
+        if(typeof(outer_screen_id) !== 'undefined') {
+            screen_id = outer_screen_id;
+        }
         full_screen(win, screen_id);
     };
 }
@@ -120,9 +128,9 @@ app_resize_functions["Adium"] = {
 };
 
 app_resize_functions["Spotify"] = {
-    "27": fs(),
-    "24": fs(),
-    "11": fs()
+    "27": fs(LAPTOP_SCREEN_ID),
+    "24": fs(LAPTOP_SCREEN_ID),
+    "11": fs(LAPTOP_SCREEN_ID)
 };
 
 app_resize_functions["Sametime"] = {
