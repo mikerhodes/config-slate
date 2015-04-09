@@ -79,6 +79,15 @@ _.each([
 });
 
 _.each([
+    'Slack'
+], function(name) {
+    app_resize_functions[name] = {
+        "27": pw(1582, 22, 978, 894),  // top right
+        "24": pw(942, 22, 978, 894),
+        "11": fs()
+    };
+});
+_.each([
     'Sublime Text',
     'IntelliJ IDEA',
     'Xcode'
@@ -91,11 +100,12 @@ _.each([
 });
 
 _.each([
-    'IBM Notes'
+    'IBM Notes',
+    'Thunderbird'
 ], function(name) {
     app_resize_functions[name] = {
         "27": pw(258, 83, 1071, 1158),  // some odd least-ugly placement
-        "24": pw(258, 83, 1071, 1158),
+        "24": pw(150, 35, 1071, 1158),
         "11": fs()
     };
 });
